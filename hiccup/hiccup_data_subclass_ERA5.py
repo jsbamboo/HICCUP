@@ -58,7 +58,8 @@ class ERA5(hiccup_data):
                         )
 
         self.src_data_name = 'ERA5'
-        self.lev_name = 'level'
+        #self.lev_name = 'level'
+        self.lev_name = 'pressure_level' #(zhang73) cdsnew
         self.new_lev_name = 'plev'
 
         if self.target_model=='EAM':
@@ -117,6 +118,8 @@ class ERA5(hiccup_data):
             self.sfc_var_name_dict.update({'PS':'sp'})          # sfc pressure
             self.atm_var_name_dict.update({'U':'u'})            # zonal wind
             self.atm_var_name_dict.update({'V':'v'})            # meridional wind
+            self.atm_var_name_dict.update({'T_mid':'t'})            # temperature
+            self.atm_var_name_dict.update({'qv':'q'})            # specific humidity
 
             if not RRM_grid:
                 dst_ne = self.get_dst_grid_ne()

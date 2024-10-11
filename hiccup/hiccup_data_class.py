@@ -3,6 +3,9 @@
 # 
 # NOTE: Variable name dictionaries are defined with the key as the model's 
 # variable name and the value as the reanalysis data variable name
+
+# (zhang73) 2024/09/29: hiccup_data_class.nudging-plev-cdsnew-240929.py
+
 # ------------------------------------------------------------------------------
 import numpy as np
 import xarray as xr
@@ -539,13 +542,15 @@ class hiccup_data(object):
         var_dict_all.update(self.sfc_var_name_dict)
 
         new_lev_name = None
-        if self.lev_name=='level': new_lev_name = 'plev'
+        #if self.lev_name=='level': new_lev_name = 'plev'
+        if self.lev_name=='pressure_level': new_lev_name = 'plev' #(zhang73) cdsnew
 
         for var, file_name in file_dict.items():
 
             with xr.open_dataset(file_name,decode_cf=False) as ds_data:
                 ds_data.load()
                 # Rename the variable
+                ds_data = ds_data.rename({'valid_time':'time'})
                 if var_dict_all[var] in ds_data: 
                     ds_data = ds_data.rename({var_dict_all[var]:var})
                 # Rename the vertical coordinate
@@ -622,7 +627,7 @@ class hiccup_data(object):
         cmd += f' --in_file={self.atm_file} '
         cmd += f' --out_file={atm_tmp_file_name} '
         cmd += f' --var_lst={var_list} '
-        cmd += f' --fl_fmt={ncremap_file_fmt} '
+        #cmd += f' --fl_fmt={ncremap_file_fmt} '
         run_cmd(cmd,verbose)
 
         # Horzontally remap surface data
@@ -632,7 +637,7 @@ class hiccup_data(object):
         cmd += f' --in_file={self.sfc_file} '
         cmd += f' --out_file={sfc_tmp_file_name} '
         cmd += f' --var_lst={var_list} '
-        cmd += f' --fl_fmt={ncremap_file_fmt} '
+        #cmd += f' --fl_fmt={ncremap_file_fmt} '
         run_cmd(cmd,verbose)
 
         # Remove output file if it already exists
@@ -693,7 +698,7 @@ class hiccup_data(object):
             cmd += f' --out_file={tmp_file_name}'
             # cmd += f' --var_lst={in_var},{lat_var},{lon_var}'
             cmd += f' --var_lst={in_var_list}'
-            cmd += f' --fl_fmt={ncremap_file_fmt}'
+            #cmd += f' --fl_fmt={ncremap_file_fmt}'
             run_cmd(cmd,verbose,shell=True)
 
         if self.do_timers: self.print_timer(timer_start)
@@ -729,7 +734,7 @@ class hiccup_data(object):
             cmd += f' --in_file={in_file}'
             cmd += f' --out_file={tmp_file_name}'
             cmd += f' --var_lst={in_var_list}'
-            cmd += f' --fl_fmt={ncremap_file_fmt}'
+            #cmd += f' --fl_fmt={ncremap_file_fmt}'
             run_cmd(cmd,verbose,shell=True)
 
         # get rid of bounds and vertices variables
@@ -1068,6 +1073,8 @@ class hiccup_data(object):
         for t in range(len(ds['time'])) : time_bnds[t,:] = ds['time'][t].values
         ds['time_bnds'] = xr.DataArray( time_bnds, coords=time_coord, dims=['time','nbnd'] )
         ds['time_bnds'].attrs['long_name'] = 'time interval endpoints'
+        print('ds[\'time\'][t].values: ',ds['time'][t].values)
+        print('ds[\'time_bnds\']: ',ds['time_bnds'])
 
         # string representation of date
         # date_str = str(year).zfill(4)+str(month).zfill(2)+str(day).zfill(2)

@@ -1,6 +1,4 @@
 import xarray as xr, numpy as np, os, datetime
-#(zhang73) 2025/03/21: hiccup_state_adjustment.alpha-modelphis.cdsnew.GitTmp.py
-
 #-------------------------------------------------------------------------------
 from hiccup.hiccup_constants import std_lapse
 from hiccup.hiccup_constants import gravit
@@ -125,14 +123,6 @@ def adjust_surface_pressure( ds_data, ds_topo, pressure_var_name='plev',
     print_stat(ds_data['PS'],name='PS (old)')
 
   nlev = len(ds_data[lev_coord_name])
-
-  #(zhang73) reverse pleve to top->bottom for cdsnew
-  if ds_data[lev_coord_name][0] > ds_data[lev_coord_name][-1]:  
-      print(f"(zhang73) Reversing all variables along {lev_coord_name}...")
-      ds_data[lev_coord_name] = ds_data[lev_coord_name].isel({lev_coord_name: slice(None, None, -1)})
-      for var in ds_data.data_vars:
-          if lev_coord_name in ds_data[var].dims:  
-              ds_data[var] = ds_data[var].isel({lev_coord_name: slice(None, None, -1)})
         
   # Make 3D pressure variable with surface pressure field added at the bottom
   ps_lev_coord = ds_data[pressure_var_name][lev_coord_name]
@@ -180,9 +170,6 @@ def adjust_surface_pressure( ds_data, ds_topo, pressure_var_name='plev',
   # provisional extrapolated surface temperature
   Tstar = tbot + alpha*tbot*( ds_data['PS']/pbot - 1.)                          # pg 8 eq 5
   T0    = Tstar + std_lapse*ds_data['PHIS']/gravit                                  # pg 9 eq 13
-  #(zhang73) consistent with topo_phis_temp, all use model phis
-  T0    = Tstar + std_lapse*ds_topo['PHIS']/gravit                                  # (zhang73)
-  print("(zhang73) T0 and topo_phis_temp all use ds_topo's PHIS")
   
   # calculate alternate surface geopotential to avoid errors when dividing
   topo_phis_temp = ds_topo['PHIS']

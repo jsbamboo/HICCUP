@@ -75,7 +75,11 @@ for t in datetime_list:
         'day'           : dy,
         'month'         : mn,
         'year'          : yr,
-        'variable'      : ['u_component_of_wind', 'v_component_of_wind']
+        'variable'      : ['temperature'
+                          ,'specific_humidity'
+                          ,'u_component_of_wind'
+                          ,'v_component_of_wind'
+                          ],
       }, output_file_plv)
   #-----------------------------------------------------------------------------
   # surface data
